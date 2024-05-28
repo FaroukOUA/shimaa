@@ -1,0 +1,212 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Container } from 'reactstrap';
+import { getTokenOrRefresh } from './token_util';
+import './custom.css';
+import { ResultReason } from 'microsoft-cognitiveservices-speech-sdk';
+
+const speechsdk = require('microsoft-cognitiveservices-speech-sdk');
+
+export default function App() {
+    const [displayText, setDisplayText] = useState('INITIALIZED: ready to test speech...');
+    const [textToSpeak, setTextToSpeak] = useState('');
+    const playerRef = useRef({ p: undefined, muted: false });
+
+    useEffect(() => {
+        window.botpressWebChat.init({
+            "composerPlaceholder": "Chat with Shimaa",
+            "botConversationDescription": "Daff Expert System",
+            "botId": "7edc8059-a034-4769-b8e0-ef4a116a2da1",
+            "hostUrl": "https://cdn.botpress.cloud/webchat/v1",
+            "messagingUrl": "https://messaging.botpress.cloud",
+            "clientId": "7edc8059-a034-4769-b8e0-ef4a116a2da1",
+            "webhookId": "6168d0cc-9c3a-4168-9864-ab6a2c17cf5c",
+            "lazySocket": true,
+            "themeName": "prism",
+            "botName": "Shimaa",
+            "avatarUrl": "https://cdn.gencraft.com/prod/user/58411f63-b509-4686-bbb7-765ac75cad8c/bea2fe35-4ba6-4cef-95a8-e3009e6c6626/image/image1_0.jpg?Expires=1716548594&Signature=EJtoOnGuSQayTt8DcuqW90BGCKh-WZrRQvLqXIar56VmQ1j9H8caUsDq0O8y7wEvcgP4zRMCKfiAJsUV2OtuoDW~Znty7HAIg1iZbH30zYXeC0nL01Bmkl1evzCX4b7rIKF4ng~AyqJT2g~km0MQzXjJnhqskOEMPRY8jPqU0WLcorhXfFzeWJ3OhfCn99LR9P~jCnKSlxpYF6qTGZ8lrWBxzwsRtQcbXY0cw8KYfyjDlcfCPCrkZGLsV6Re4XHHGH5h~e7HWI04pmy9p4qILvfpVvWPM90oJeGrJae1aBNGKiQr~oeDeDKjk5Y-VfyoZ1OrmdlA42efsDVe~r4vew__&Key-Pair-Id=K3RDDB1TZ8BHT8",
+            "stylesheet": "https://webchat-styler-css.botpress.app/prod/fb3192d4-9d66-4127-adb8-86ae090c729b/v48000/style.css",
+            "frontendVersion": "v1",
+            "useSessionStorage": true,
+            "enableConversationDeletion": true,
+            "showPoweredBy": true,
+            "theme": "prism",
+            "themeColor": "#2563eb",
+            "allowedOrigins": []
+        });
+
+        window.botpressWebChat.onEvent(event => {
+            console.log('Event:', event);
+            if (event.type === 'trigger') {
+                console.log('Event type is trigger');
+                if (event.value && event.value.sttresponse) {
+                    console.log('Event triggered :', event.value.sttresponse);
+                    setTextToSpeak(event.value.sttresponse);
+                    textToSpeech(event.value.sttresponse);
+                } else {
+                    console.log('event.value or event.value.sttresponse is not defined:', event.value);
+                }
+            } else {
+                console.log('Event type is not trigger:', event.type);
+            }
+        });
+        
+    }, []);
+
+    async function sttFromMic() {
+        const tokenObj = await getTokenOrRefresh();
+        const speechConfig = speechsdk.SpeechConfig.fromAuthorizationToken(tokenObj.authToken, tokenObj.region);
+        speechConfig.speechRecognitionLanguage = 'en-US';
+
+        const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
+        const recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
+
+        setDisplayText('speak into your microphone...');
+
+        recognizer.recognizeOnceAsync(result => {
+            if (result.reason === ResultReason.RecognizedSpeech) {
+                setDisplayText(`RECOGNIZED: Text=${result.text}`);
+                window.botpressWebChat.sendPayload({
+                    type: 'trigger',
+                    payload: { sttquestion: result.text }
+                });
+            } else {
+                setDisplayText('ERROR: Speech was cancelled or could not be recognized. Ensure your microphone is working properly.');
+            }
+        });
+    }
+
+    async function textToSpeech(textToSpeak) {
+        console.log("start");
+        const tokenObj = await getTokenOrRefresh();
+        const speechConfig = speechsdk.SpeechConfig.fromAuthorizationToken(tokenObj.authToken, tokenObj.region);
+        const myPlayer = new speechsdk.SpeakerAudioDestination();
+        const audioConfig = speechsdk.AudioConfig.fromSpeakerOutput(myPlayer);
+
+        playerRef.current.p = myPlayer;
+        playerRef.current.muted = false;
+
+        let synthesizer = new speechsdk.SpeechSynthesizer(speechConfig, audioConfig);
+
+        setDisplayText(`speaking text: ${textToSpeak}...`);
+        synthesizer.speakTextAsync(
+            textToSpeak,
+            result => {
+                let text;
+                if (result.reason === speechsdk.ResultReason.SynthesizingAudioCompleted) {
+                    text = `synthesis finished for "${textToSpeak}".\n`;
+                } else if (result.reason === speechsdk.ResultReason.Canceled) {
+                    text = `synthesis failed. Error detail: ${result.errorDetails}.\n`;
+                }
+                synthesizer.close();
+                setDisplayText(text);
+            },
+            function (err) {
+                setDisplayText(`Error: ${err}.\n`);
+                synthesizer.close();
+            }
+        );
+    }
+
+    async function handleMute() {
+        const player = playerRef.current;
+        if (player.p) {
+            if (!player.muted) {
+                player.p.pause();
+                playerRef.current.muted = true;
+            } else {
+                player.p.resume();
+                playerRef.current.muted = false;
+            }
+        }
+    }
+
+    return (
+        <Container className="app-container">
+            <h1 className="display-4 mb-3">Speech sample app</h1>
+
+            <div className="row main-container">
+                <div className="col-6">
+                    <i className="fas fa-microphone fa-lg mr-2" onClick={() => sttFromMic()}></i>
+                    Convert speech to text from your mic.
+                    <div className="mt-2">
+                        <i className="fas fa-volume-up fa-lg mr-2" onClick={() => textToSpeech(textToSpeak)}></i>
+                        Convert text to speech.
+                    </div>
+                    <div className="mt-2">
+                        <i className="fas fa-volume-mute fa-lg mr-2" onClick={() => handleMute()}></i>
+                        Pause/resume text to speech output.
+                    </div>
+                </div>
+                <div className="col-6 output-display rounded">
+                    <code>{displayText}</code>
+                </div>
+            </div>
+        </Container>
+    );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+HTML
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.6.1/css/all.css' integrity='sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP' crossorigin='anonymous'>
+    <title>Speech sample app</title>
+  </head>
+  <body class="background">
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+    <script src="https://cdn.botpress.cloud/webchat/v1/inject.js"></script>
+
+  </body>
+</html>
