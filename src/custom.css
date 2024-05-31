@@ -2,12 +2,12 @@
     margin-top: 100px;
 }
 
-.fa-microphone {
-    color: #14A76C;
+.btn-microphone {
+    color: #ffffff;
 }
 
-.fa-microphone:hover {
-    color: #0c6e47;
+.btn-microphone:hover {
+    color: #a4a4a4ab;
 }
 
 .fa-volume-up {

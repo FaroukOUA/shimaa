@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { Container } from 'reactstrap';
 import { getTokenOrRefresh } from './token_util';
 import './custom.css';
@@ -8,14 +8,7 @@ const speechsdk = require('microsoft-cognitiveservices-speech-sdk');
 
 export default function App() {
     const [displayText, setDisplayText] = useState('INITIALIZED: ready to test speech...');
-    const playerRef = useRef({ p: undefined, muted: false });
-
-    useEffect(() => {
-        
-
-        
-        
-    }, []);
+    
 
     async function sttFromMic() {
         const tokenObj = await getTokenOrRefresh();
@@ -46,18 +39,9 @@ export default function App() {
 
     return (
         <Container className="app-container">
-            <h1 className="display-4 mb-3">Speech sample app</h1>
+        
+        <button class="thq-button-filled btn-microphone" onClick={() => sttFromMic()}><i className="fas fa-microphone fa-lg mr-2" ></i></button>
 
-            <div className="row main-container">
-                <div className="col-6">
-                    <i className="fas fa-microphone fa-lg mr-2" onClick={() => sttFromMic()}></i>
-                    Convert speech to text from your mic.
-                    
-                </div>
-                <div className="col-6 output-display rounded">
-                    <code>{displayText}</code>
-                </div>
-            </div>
         </Container>
     );
 }
