@@ -7,7 +7,6 @@ import { ResultReason } from 'microsoft-cognitiveservices-speech-sdk';
 const speechsdk = require('microsoft-cognitiveservices-speech-sdk');
 
 export default function App() {
-    const [displayText, setDisplayText] = useState('INITIALIZED: ready to test speech...');
     const [player, updatePlayer] = useState({p: undefined, muted: false});
 
     async function sttFromMic() {
@@ -18,11 +17,9 @@ export default function App() {
         const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
         const recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
 
-        setDisplayText('speak into your microphone...');
 
         recognizer.recognizeOnceAsync(result => {
             if (result.reason === ResultReason.RecognizedSpeech) {
-                setDisplayText(`RECOGNIZED: Text=${result.text}`);
                 window.botpressWebChat.sendPayload({
                     type: 'trigger',
                     payload: { sttquestion: result.text }
@@ -50,7 +47,6 @@ export default function App() {
 
         let synthesizer = new speechsdk.SpeechSynthesizer(speechConfig, audioConfig);
 
-        setDisplayText(`speaking text: ${textToSpeak}...`);
         synthesizer.speakTextAsync(
         textToSpeak,
         result => {
@@ -62,10 +58,8 @@ export default function App() {
             }
             synthesizer.close();
             synthesizer = undefined;
-            setDisplayText(text);
         },
         function (err) {
-            setDisplayText(`Error: ${err}.\n`);
 
             synthesizer.close();
             synthesizer = undefined;
