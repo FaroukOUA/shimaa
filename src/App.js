@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { Container } from 'reactstrap';
 import { getTokenOrRefresh } from './token_util';
 import './custom.css';
