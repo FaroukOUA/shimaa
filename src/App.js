@@ -10,12 +10,7 @@ export default function App() {
     const [displayText, setDisplayText] = useState('INITIALIZED: ready to test speech...');
     const playerRef = useRef({ p: undefined, muted: false });
 
-    useEffect(() => {
-        
-
-        
-        
-    }, []);
+    
 
     async function sttFromMic() {
         const tokenObj = await getTokenOrRefresh();
