@@ -8,6 +8,10 @@ const speechsdk = require('microsoft-cognitiveservices-speech-sdk');
 
 export default function App() {
     const [displayText, setDisplayText] = useState('INITIALIZED: ready to test speech...');
+<<<<<<< HEAD
+=======
+
+>>>>>>> c0cfbdf93c922e147c726aa85ec421b50a70743e
     
 
     async function sttFromMic() {
