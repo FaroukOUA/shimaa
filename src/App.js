@@ -50,11 +50,8 @@ export default function App() {
         synthesizer.speakTextAsync(
         textToSpeak,
         result => {
-            let text;
             if (result.reason === speechsdk.ResultReason.SynthesizingAudioCompleted) {
-                text = `synthesis finished for "${textToSpeak}".\n`
             } else if (result.reason === speechsdk.ResultReason.Canceled) {
-                text = `synthesis failed. Error detail: ${result.errorDetails}.\n`
             }
             synthesizer.close();
             synthesizer = undefined;
