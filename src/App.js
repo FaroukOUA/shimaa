@@ -28,11 +28,15 @@ export default function App() {
                     payload: { sttquestion: result.text }
                 });
                 window.botpressWebChat.onEvent(event => {
-                    if (event.type==='TRIGGER' && event.value.generated_response) {
-                        textToSpeech(event.value.generated_response);
-                }});
+                    if (event.type === 'TRIGGER' && event.value.textToSpeak) {
+                        textToSpeech(event.value.textToSpeak);
+                    }
+                }, ['TRIGGER']);
             } else {
-                setDisplayText('ERROR: Speech was cancelled or could not be recognized. Ensure your microphone is working properly.');
+                window.botpressWebChat.sendPayload({
+                    type: 'trigger',
+                    payload: { sttquestion:'ERROR: Speech was cancelled or could not be recognized. Ensure your microphone is working properly.' }
+                });
             }
         });
     }
