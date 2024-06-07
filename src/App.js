@@ -44,7 +44,7 @@ export default function App() {
         const myPlayer = new speechsdk.SpeakerAudioDestination();
         updatePlayer(p => {p.p = myPlayer; return p;});
         const audioConfig = speechsdk.AudioConfig.fromSpeakerOutput(player.p);
-
+        speechConfig.speechSynthesisVoiceName = 'en-GB-HollieNeural';
         let synthesizer = new speechsdk.SpeechSynthesizer(speechConfig, audioConfig);
 
         synthesizer.speakTextAsync(
