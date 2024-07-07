@@ -1,12 +1,15 @@
-# React Speech service sample app
+# Shimaa: A chatbot that teaches music
 
-This sample shows how to integrate the Azure Speech service into a sample React application. This sample shows design pattern examples for authentication token exchange and management, as well as capturing audio from a microphone or file for speech-to-text conversions.
+Shimaa chatbot, a Daff chatbot designed to mimic human music teachers and advisors by providing comprehensive knowledge about Daff.
+
+This app contains the Azure Speech service integrated in a React application. It shows design pattern examples for authentication token exchange and management, as well as capturing audio from a microphone or file for speech-to-text conversions.
+It also shows integration of a chatbot in website, and the ability to send/recieve data to/from React application
 
 ## Prerequisites
 
 1. This article assumes that you have an Azure account and Speech service subscription. If you don't have an account and subscription, [try the Speech service for free](https://docs.microsoft.com/azure/cognitive-services/speech-service/overview#try-the-speech-service-for-free).
 1. Ensure you have [Node.js](https://nodejs.org/en/download/) installed.
-2. Ensure you have Botpress chatbot that can retrieve and send data. If so, then you're supposed to change the variable names and the lines related to integrating the chatbot in your website.
+2. Ensure you have Botpress chatbot that can recieve and send data. If so, then you're supposed to change the variable names and the lines related to integrating the chatbot in your website.
 
 ## How to run the app
 
