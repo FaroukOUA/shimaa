@@ -6,10 +6,11 @@ This sample shows how to integrate the Azure Speech service into a sample React 
 
 1. This article assumes that you have an Azure account and Speech service subscription. If you don't have an account and subscription, [try the Speech service for free](https://docs.microsoft.com/azure/cognitive-services/speech-service/overview#try-the-speech-service-for-free).
 1. Ensure you have [Node.js](https://nodejs.org/en/download/) installed.
+2. Ensure you have Botpress chatbot that can retrieve and send data. If so, then you're supposed to change the variable names and the lines related to integrating the chatbot in your website.
 
 ## How to run the app
 
-1. Clone this repo, then change directory to the project root and run `npm install` to install dependencies.
+1. Clone this repo, then change directory to the project root and run `npm install` to install dependencies.(make sure you install dependencies of botpress too)
 1. Add your Azure Speech key and region to the `.env` file, replacing the placeholder text.
 1. To run the Express server and React app together, run `npm run dev`.
 
@@ -178,5 +179,6 @@ const tokenObj = await getTokenOrRefresh();
 const speechConfig = speechsdk.SpeechConfig.fromAuthorizationToken(tokenObj.authToken, tokenObj.region);
 ```
 
-In many other Speech service samples, you will see the function `SpeechConfig.fromSubscription` used instead of `SpeechConfig.fromAuthorizationToken`, but by **avoiding the usage** of `fromSubscription` on the front-end, you prevent your speech subscription key from becoming exposed, and instead utilize the token authentication process. `fromSubscription` is safe to use in a Node.js environment, or in other Speech SDK programming languages when the call is made on a back-end, but it is best to avoid using in a browser-based JavaScript environment.#   s h i m a a  
+In many other Speech service samples, you will see the function `SpeechConfig.fromSubscription` used instead of `SpeechConfig.fromAuthorizationToken`, but by **avoiding the usage** of `fromSubscription` on the front-end, you prevent your speech subscription key from becoming exposed, and instead utilize the token authentication process. `fromSubscription` is safe to use in a Node.js environment, or in other Speech SDK programming languages when the call is made on a back-end, but it is best to avoid using in a browser-based JavaScript environment.#   s h i m a a 
+ 
  
